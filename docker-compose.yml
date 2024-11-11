@@ -1,0 +1,44 @@
+services:
+  api:
+    build: ./api
+    ports:
+      - "5000:5000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=user456
+      - DB_PASSWORD=pass654
+      - DB_NAME=tienda
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  client:
+    build: ./client
+    ports:
+      - "80:80"
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: tienda
+      MYSQL_USER: user456
+      MYSQL_PASSWORD: pass654
+      MYSQL_ROOT_PASSWORD: rootpass
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+
+networks:
+  app-network:
+    driver: bridge
